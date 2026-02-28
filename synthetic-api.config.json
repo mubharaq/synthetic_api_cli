@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "global": {
+    "latencyMs": [
+      50,
+      250
+    ],
+    "cors": {
+      "enabled": true,
+      "origin": "*",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "HEAD",
+        "OPTIONS"
+      ],
+      "headers": [
+        "content-type",
+        "authorization",
+        "x-api-key"
+      ]
+    }
+  },
+  "auth": {
+    "tokens": [
+      "demo-token"
+    ],
+    "apiKeys": [
+      "demo-key"
+    ]
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "response": {
+        "status": 200,
+        "body": {
+          "name": "synthetic-api",
+          "message": "Welcome. Your mock API is running.",
+          "docs": [
+            "GET /health",
+            "GET /__routes",
+            "GET /users?page=1&limit=5",
+            "GET /users/:id (Authorization: Bearer demo-token)",
+            "POST /auth/login",
+            "GET /analytics?range=7d (x-api-key: demo-key)"
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/users",
+      "querySchema": {
+        "page": "number?",
+        "limit": "number?"
+      },
+      "pagination": {
+        "type": "offset",
+        "pageParam": "page",
+        "limitParam": "limit",
+        "defaultLimit": 5
+      },
+      "response": {
+        "status": 200,
+        "bodyFrom": "fixtures/users.json"
+      },
+      "errors": [
+        {
+          "status": 500,
+          "code": "temporary_failure",
+          "message": "Temporary failure. Retry.",
+          "probability": 0.05
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/users/:id",
+      "auth": {
+        "mode": "bearer"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "userId": "{{params.id}}",
+          "message": "Secure endpoint response"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/friends",
+      "querySchema": {
+        "page": "number?",
+        "limit": "number?"
+      },
+      "pagination": {
+        "type": "cursor",
+        "cursorParam": "cursor",
+        "limitParam": "limit",
+        "defaultLimit": 5
+      },
+      "response": {
+        "status": 200,
+        "bodyFrom": "fixtures/users.json"
+      },
+      "errors": [
+        {
+          "status": 500,
+          "code": "temporary_failure",
+          "message": "Temporary failure. Retry.",
+          "probability": 0.05
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/unstable",
+      "response": {
+        "status": 200,
+        "body": {
+          "ok": true
+        }
+      },
+      "errors": [
+        {
+          "status": 503,
+          "code": "always_fails",
+          "message": "Guaranteed failure.",
+          "probability": 1.0
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "bodySchema": {
+        "email": "string",
+        "password": "string"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "token": "demo-token",
+          "expiresIn": 3600
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/analytics",
+      "auth": {
+        "mode": "apiKey"
+      },
+      "querySchema": {
+        "range": "string?"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "visitors": 1821,
+          "conversions": 77,
+          "conversionRate": 0.042,
+          "requestedRange": "{{query.range}}"
+        }
+      }
+    }
+  ]
+}
