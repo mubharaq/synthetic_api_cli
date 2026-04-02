@@ -615,8 +615,22 @@ int _getLatency(CompiledRoute route, Map<String, dynamic> config) {
   return ((max - min + 1) * _random.nextDouble()).floor() + min;
 }
 
+String _generateId([int length = 12]) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return List.generate(length, (_) => chars[_random.nextInt(chars.length)])
+      .join();
+}
+
 dynamic _applyTemplate(dynamic payload, dynamic context) {
   if (payload is String) {
+    final withTokens = payload.replaceAllMapped(
+      RegExp(r'\{\{\s*\$id(?::(\d+))?\s*\}\}'),
+      (match) {
+        final length = int.tryParse(match.group(1) ?? '') ?? 12;
+        return _generateId(length);
+      },
+    );
+    if (withTokens != payload) return withTokens;
     return payload.replaceAllMapped(RegExp(r'\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}'),
         (match) {
       final expression = match.group(1);

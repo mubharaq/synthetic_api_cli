@@ -128,8 +128,10 @@ RUN dart compile exe bin/synthetic_api.dart -o bin/synthetic_api
 FROM scratch
 COPY --from=build /runtime/ /
 COPY --from=build /app/bin/synthetic_api /app/bin/
+COPY --from=build /app/synthetic-api.config.json /app/
+COPY --from=build /app/fixtures /app/fixtures/
 ENTRYPOINT ["/app/bin/synthetic_api"]
-CMD ["dev", "--config", "synthetic-api.config.json", "--watch", "false"]
+CMD ["dev", "--config", "/app/synthetic-api.config.json", "--watch", "false"]
 ''';
 
 const _dockerignore = '.DS_Store\n.git\n.gitignore\n';

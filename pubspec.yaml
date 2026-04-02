@@ -1,6 +1,6 @@
 name: synthetic_api_cli
 description: Declarative mock API server for frontend development
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/mubharaq/synthetic_api_cli.git
 
 environment:
